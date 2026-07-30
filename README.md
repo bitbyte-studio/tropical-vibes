@@ -1,38 +1,45 @@
-# 🛍️ Tropical Vibes
+# Tropical Vibes
 
-Catálogo e-commerce de moda caribeña. Vitrina digital con 12 productos, filtros por categoría, carrito de compras y pedidos por WhatsApp.
+Catálogo e-commerce de moda caribeña. Vitrina digital con 17 productos, filtros por categoría, carrito de compras y pedidos por WhatsApp.
 
-## 🚀 Stack
+## Stack
 
 - **React 19** + TypeScript
 - **Vite** + Tailwind CSS 4
-- **Lucide React** para iconografía
-- **Motion** para animaciones
+- **React Router** para rutas compartibles
 
-## 📋 Funcionalidades
+## Rutas
 
-- 🏠 **Home** — Hero con banner de colección + categorías circulares + productos destacados
-- 🛍️ **Catálogo** — Grid de productos con filtros por categoría y selector de talla/color
-- 🔍 **Búsqueda y filtros** — Navegación por Hombres, Mujeres y Accesorios
-- 📄 **Página de producto** — Galería de imágenes, selector de color y talla, productos relacionados
-- 🛒 **Carrito lateral** — Drawer con resumen de pedido, cantidades y envío a WhatsApp
-- 📢 **Barra de anuncios** — Promociones y envío gratis visibles en todo momento
-- 📱 **WhatsApp flotante** — Contacto directo contextual según el producto
-- 📱 **Totalmente responsive** — mobile-first
+| Ruta | Vista |
+|------|--------|
+| `/` | Home |
+| `/catalogo` | Catálogo completo |
+| `/catalogo/hombres` | Filtro Hombres |
+| `/catalogo/mujeres` | Filtro Mujeres |
+| `/catalogo/accesorios` | Filtro Accesorios |
+| `/producto/:id` | Detalle de producto |
 
-## 🛠️ Desarrollo
+## Funcionalidades
+
+- **Home** — Hero, categorías, destacados y newsletter
+- **Catálogo** — Grid con filtros, búsqueda y ordenamiento
+- **Producto** — Galería, color/talla, relacionados (URL compartible)
+- **Carrito** — Drawer persistente en `localStorage` + pedido por WhatsApp
+- **WhatsApp flotante** — Mensaje contextual según la ruta del producto
+- **Responsive** — mobile-first
+
+## Imágenes
+
+Todas las imágenes viven en `public/images/` y se referencian como `/images/...` desde `src/data/products.ts` (sin dependencias externas).
+
+## Desarrollo
 
 ```bash
-# Instalar dependencias
 bun install
-
-# Modo desarrollo
 bun dev
-
-# Build producción
 bun run build
 ```
 
-## 📄 Licencia
+## Licencia
 
 © 2026 Bit & Byte Studio. Proyecto demo para portafolio.

@@ -1,23 +1,21 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Product } from '../types';
+import { productPath } from '../lib/routes';
+import { useCart } from '../context/CartContext';
 
 interface ProductCardProps {
   product: Product;
-  onSelect: (product: Product) => void;
-  onAddToCart: (product: Product, e: React.MouseEvent) => void;
 }
 
-export const ProductCard: React.FC<ProductCardProps> = ({
-  product,
-  onSelect,
-  onAddToCart,
-}) => {
+export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+  const { quickAddToCart } = useCart();
+
   return (
-    <div
-      onClick={() => onSelect(product)}
+    <Link
+      to={productPath(product.id)}
       className="bg-white rounded-xl shadow-xs hover:shadow-md transition-all duration-300 flex flex-col group cursor-pointer relative overflow-hidden border border-[#e0bfbd]/40"
     >
-      {/* Image container */}
       <div className="w-full h-80 rounded-t-xl overflow-hidden relative bg-[#f5dddb]/40">
         {product.tag && (
           <span
@@ -36,7 +34,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         />
       </div>
 
-      {/* Content */}
       <div className="p-5 flex flex-col flex-grow">
         <h4 className="font-bold text-[12px] text-[#584140] mb-1 uppercase tracking-wider">
           {product.category}
@@ -49,7 +46,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             ${product.price.toFixed(2)}
           </span>
           <button
-            onClick={(e) => onAddToCart(product, e)}
+            type="button"
+            onClick={(e) => quickAddToCart(product, e)}
             aria-label={`Añadir ${product.name} al carrito`}
             className="w-10 h-10 rounded-full bg-[#f5dddb] flex items-center justify-center text-[#ae2f34] group-hover:bg-[#ae2f34] group-hover:text-white transition-all shadow-xs hover:scale-110 active:scale-95"
           >
@@ -71,6 +69,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           </button>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };

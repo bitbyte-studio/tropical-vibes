@@ -1,27 +1,38 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { matchPath, useLocation } from 'react-router-dom';
+import { PRODUCTS } from '../data/products';
+import { whatsappUrl } from '../lib/routes';
 
-interface FloatingWhatsAppProps {
-  productName?: string;
+function buildDefaultMessage(productName?: string) {
+  return productName
+    ? `Hola Tropical Vibes 🌴, me interesa consultar sobre: ${productName}. ¿Tienen disponibilidad?`
+    : 'Hola Tropical Vibes 🌴, me gustaría consultar por la nueva colección Verano 2026.';
 }
 
-export const FloatingWhatsApp: React.FC<FloatingWhatsAppProps> = ({ productName }) => {
+export const FloatingWhatsApp: React.FC = () => {
+  const location = useLocation();
+  const productName = useMemo(() => {
+    const match = matchPath('/producto/:productId', location.pathname);
+    const productId = match?.params.productId;
+    return PRODUCTS.find((p) => p.id === productId)?.name;
+  }, [location.pathname]);
+
   const [isOpen, setIsOpen] = useState(false);
-  const [message, setMessage] = useState(
-    productName
-      ? `Hola Tropical Vibes 🌴, me interesa consultar sobre: ${productName}. ¿Tienen disponibilidad?`
-      : 'Hola Tropical Vibes 🌴, me gustaría consultar por la nueva colección Verano 2026.'
-  );
+  const [message, setMessage] = useState(buildDefaultMessage(productName));
+
+  useEffect(() => {
+    setMessage(buildDefaultMessage(productName));
+  }, [productName, location.pathname]);
 
   const handleSend = () => {
-    const encoded = encodeURIComponent(message);
-    window.open(`https://api.whatsapp.com/send?phone=13055550199&text=${encoded}`, '_blank', 'noopener,noreferrer');
+    window.open(whatsappUrl(message), '_blank', 'noopener,noreferrer');
     setIsOpen(false);
   };
 
   return (
     <>
-      {/* Floating Button */}
       <button
+        type="button"
         onClick={() => setIsOpen(true)}
         className="fixed bottom-6 right-6 z-45 bg-[#25D366] hover:bg-[#128C7E] text-white p-4 rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center gap-2 group active:scale-95 cursor-pointer"
         aria-label="Chatear por WhatsApp"
@@ -38,27 +49,29 @@ export const FloatingWhatsApp: React.FC<FloatingWhatsAppProps> = ({ productName 
         </span>
       </button>
 
-      {/* Quick WhatsApp Chat Modal */}
       {isOpen && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-[#fff8f7] rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-[#e0bfbd]/40 animate-in zoom-in-95 duration-200">
-            {/* Header */}
             <div className="bg-[#006a62] text-white p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-[22px]">
                   🌴
                 </div>
                 <div>
-                  <div className="font-bold text-[16px]">Tropical Vibes Miami</div>
+                  <div className="font-bold text-[16px]">
+                    Tropical Vibes Miami
+                  </div>
                   <div className="text-[12px] opacity-85 flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-[#25D366] inline-block"></span>
+                    <span className="w-2 h-2 rounded-full bg-[#25D366] inline-block" />
                     En línea • Respuesta rápida
                   </div>
                 </div>
               </div>
               <button
+                type="button"
                 onClick={() => setIsOpen(false)}
                 className="text-white/80 hover:text-white p-1"
+                aria-label="Cerrar"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -75,12 +88,14 @@ export const FloatingWhatsApp: React.FC<FloatingWhatsAppProps> = ({ productName 
               </button>
             </div>
 
-            {/* Body */}
             <div className="p-5 space-y-4">
               <div className="bg-[#fff0ef] p-3.5 rounded-xl text-[14px] text-[#251818] border border-[#fbe3e1]">
-                <p className="font-medium text-[#ae2f34] mb-1">¡Hola caribeño! 🌺</p>
+                <p className="font-medium text-[#ae2f34] mb-1">
+                  ¡Hola caribeño!
+                </p>
                 <p>
-                  Escríbenos tu duda o pedido y un estilista de Tropical Vibes te atenderá al instante por WhatsApp.
+                  Escríbenos tu duda o pedido y un estilista de Tropical Vibes
+                  te atenderá al instante por WhatsApp.
                 </p>
               </div>
 
@@ -97,15 +112,16 @@ export const FloatingWhatsApp: React.FC<FloatingWhatsAppProps> = ({ productName 
               </div>
             </div>
 
-            {/* Footer buttons */}
             <div className="p-4 bg-[#fff0ef]/60 flex items-center justify-end gap-3 border-t border-[#e0bfbd]/30">
               <button
+                type="button"
                 onClick={() => setIsOpen(false)}
                 className="px-4 py-2 rounded-lg font-bold text-[14px] text-[#584140] hover:bg-[#f5dddb] transition-colors"
               >
                 Cancelar
               </button>
               <button
+                type="button"
                 onClick={handleSend}
                 className="px-5 py-2.5 rounded-xl bg-[#25D366] hover:bg-[#128C7E] text-white font-bold text-[14px] shadow flex items-center gap-2 transition-all cursor-pointer"
               >

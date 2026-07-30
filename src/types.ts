@@ -24,11 +24,9 @@ export interface Product {
 }
 
 export interface CartItem {
-  id: string; // unique item key
+  id: string;
   product: Product;
   selectedColor: string;
   selectedSize: string;
   quantity: number;
 }
-
-export type ViewType = 'home' | 'catalog' | 'detail';

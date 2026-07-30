@@ -1,5 +1,7 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { CartItem } from '../types';
+import { whatsappUrl } from '../lib/routes';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -18,6 +20,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   onRemoveItem,
   onClearCart,
 }) => {
+  const navigate = useNavigate();
+
   if (!isOpen) return null;
 
   const total = items.reduce(
@@ -50,12 +54,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
       `¿Tienen disponibilidad y cuáles son los métodos de pago?`,
     ].join('\n');
 
-    const encoded = encodeURIComponent(text);
-    window.open(
-      `https://api.whatsapp.com/send?phone=13055550199&text=${encoded}`,
-      '_blank',
-      'noopener,noreferrer'
-    );
+    window.open(whatsappUrl(text), '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -139,7 +138,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   Descubre las prendas de lino, vestidos florales y accesorios de la colección verano.
                 </p>
                 <button
-                  onClick={onClose}
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    navigate('/catalogo');
+                  }}
                   className="px-6 py-2.5 bg-[#ae2f34] text-white font-bold rounded-full shadow hover:bg-[#8c1520] transition-colors text-[14px]"
                 >
                   Explorar Catálogo

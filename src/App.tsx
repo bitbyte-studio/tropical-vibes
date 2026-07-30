@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Product, ViewType, CategoryType, CartItem } from './types';
+import { useEffect } from 'react';
+import { Navigate, Route, Routes, useParams } from 'react-router-dom';
 import { PRODUCTS } from './data/products';
+import { CartProvider, useCart } from './context/CartContext';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { FloatingWhatsApp } from './components/FloatingWhatsApp';
@@ -8,198 +9,116 @@ import { CartDrawer } from './components/CartDrawer';
 import { HomeView } from './components/HomeView';
 import { CatalogView } from './components/CatalogView';
 import { ProductDetailView } from './components/ProductDetailView';
+import { ScrollToTop } from './components/ScrollToTop';
+import { slugToCategory } from './lib/routes';
 
-export default function App() {
-  const [currentView, setCurrentView] = useState<ViewType>('home');
-  const [selectedCategory, setSelectedCategory] = useState<
-    CategoryType | 'Todos'
-  >('Todos');
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [cartOpen, setCartOpen] = useState(false);
-  const [cartItems, setCartItems] = useState<CartItem[]>(() => {
-    try {
-      const saved = localStorage.getItem('tropical_vibes_cart_v1');
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
-
+function useDocumentTitle(title: string) {
   useEffect(() => {
-    try {
-      localStorage.setItem(
-        'tropical_vibes_cart_v1',
-        JSON.stringify(cartItems)
-      );
-    } catch {
-      // Ignore storage errors
-    }
-  }, [cartItems]);
+    document.title = title;
+  }, [title]);
+}
 
-  // Scroll to top on view change
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [currentView, selectedProduct]);
+function CatalogPage() {
+  const { categorySlug } = useParams();
+  const selectedCategory = slugToCategory(categorySlug);
+  const title =
+    selectedCategory === 'Todos'
+      ? 'Catálogo — Tropical Vibes'
+      : `${selectedCategory} — Tropical Vibes`;
+  useDocumentTitle(title);
 
-  const handleNavigate = (
-    view: ViewType,
-    category?: CategoryType | 'Todos'
-  ) => {
-    setCurrentView(view);
-    if (category) {
-      setSelectedCategory(category);
-    }
-    if (view !== 'detail') {
-      setSelectedProduct(null);
-    }
-  };
+  return (
+    <CatalogView
+      products={PRODUCTS}
+      selectedCategory={selectedCategory}
+    />
+  );
+}
 
-  const handleSelectProduct = (product: Product) => {
-    setSelectedProduct(product);
-    setCurrentView('detail');
-  };
+function ProductPage() {
+  const { productId } = useParams();
+  const product = PRODUCTS.find((p) => p.id === productId);
 
-  const handleAddToCart = (
-    product: Product,
-    selectedColor: string = product.colors[0]?.name || 'Estándar',
-    selectedSize: string = product.sizes[0] || 'Única',
-    quantity: number = 1
-  ) => {
-    const itemKey = `${product.id}-${selectedColor}-${selectedSize}`;
-    setCartItems((prev) => {
-      const existingIndex = prev.findIndex((item) => item.id === itemKey);
-      if (existingIndex > -1) {
-        const updated = [...prev];
-        updated[existingIndex] = {
-          ...updated[existingIndex],
-          quantity: updated[existingIndex].quantity + quantity,
-        };
-        return updated;
-      } else {
-        return [
-          ...prev,
-          {
-            id: itemKey,
-            product,
-            selectedColor,
-            selectedSize,
-            quantity,
-          },
-        ];
-      }
-    });
-    setCartOpen(true);
-  };
+  useDocumentTitle(
+    product
+      ? `${product.name} — Tropical Vibes`
+      : 'Producto no encontrado — Tropical Vibes'
+  );
 
-  const handleQuickAddToCart = (product: Product, e: React.MouseEvent) => {
-    e.stopPropagation();
-    handleAddToCart(
-      product,
-      product.colors[0]?.name || 'Estándar',
-      product.sizes[0] || 'Única',
-      1
-    );
-  };
+  if (!product) {
+    return <Navigate to="/catalogo" replace />;
+  }
 
-  const handleUpdateQuantity = (id: string, delta: number) => {
-    setCartItems((prev) =>
-      prev
-        .map((item) => {
-          if (item.id === id) {
-            const nextQty = item.quantity + delta;
-            return nextQty > 0 ? { ...item, quantity: nextQty } : null;
-          }
-          return item;
-        })
-        .filter(Boolean) as CartItem[]
-    );
-  };
+  return (
+    <ProductDetailView
+      key={product.id}
+      product={product}
+      allProducts={PRODUCTS}
+    />
+  );
+}
 
-  const handleRemoveItem = (id: string) => {
-    setCartItems((prev) => prev.filter((item) => item.id !== id));
-  };
+function HomePage({ featuredProducts }: { featuredProducts: typeof PRODUCTS }) {
+  useDocumentTitle('Tropical Vibes 🌴 — Moda Caribeña');
+  return <HomeView featuredProducts={featuredProducts} />;
+}
 
-  const handleClearCart = () => {
-    setCartItems([]);
-  };
-
-  const totalCartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+function AppShell() {
+  const {
+    cartItems,
+    cartOpen,
+    totalCartCount,
+    setCartOpen,
+    updateQuantity,
+    removeItem,
+    clearCart,
+  } = useCart();
 
   const featuredProducts = PRODUCTS.filter((p) => p.featured).slice(0, 8);
 
   return (
     <div className="min-h-screen flex flex-col bg-[#fff8f7] text-[#251818] font-sans">
-      {/* Announcement top bar */}
+      <ScrollToTop />
+
       <div className="bg-[#006a62] text-white text-[13px] font-bold py-2 px-4 text-center tracking-wide">
-        ☀️ Envío Gratis en pedidos sobre $50 USD • Colección Verano 2026 ya disponible 🌴
+        Envío Gratis en pedidos sobre $50 USD • Colección Verano 2026 ya disponible
       </div>
 
-      {/* Navigation Bar */}
-      <Navbar
-        currentView={currentView}
-        onNavigate={handleNavigate}
-        cartCount={totalCartCount}
-        onOpenCart={() => setCartOpen(true)}
-      />
+      <Navbar cartCount={totalCartCount} onOpenCart={() => setCartOpen(true)} />
 
-      {/* Main View Display */}
       <main className="flex-1 flex flex-col w-full">
-        {currentView === 'home' && (
-          <HomeView
-            featuredProducts={featuredProducts}
-            onSelectProduct={handleSelectProduct}
-            onAddToCart={handleQuickAddToCart}
-            onNavigateCategory={(cat) => handleNavigate('catalog', cat)}
+        <Routes>
+          <Route
+            path="/"
+            element={<HomePage featuredProducts={featuredProducts} />}
           />
-        )}
-
-        {currentView === 'catalog' && (
-          <CatalogView
-            products={PRODUCTS}
-            selectedCategory={selectedCategory}
-            onSelectCategory={(cat) => {
-              setSelectedCategory(cat);
-            }}
-            onSelectProduct={handleSelectProduct}
-            onAddToCart={handleQuickAddToCart}
-          />
-        )}
-
-        {currentView === 'detail' && selectedProduct && (
-          <ProductDetailView
-            product={selectedProduct}
-            allProducts={PRODUCTS}
-            onBack={() => handleNavigate('catalog', selectedCategory)}
-            onAddToCart={(prod, col, sz, qty) =>
-              handleAddToCart(prod, col, sz, qty)
-            }
-            onSelectProduct={handleSelectProduct}
-          />
-        )}
+          <Route path="/catalogo" element={<CatalogPage />} />
+          <Route path="/catalogo/:categorySlug" element={<CatalogPage />} />
+          <Route path="/producto/:productId" element={<ProductPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </main>
 
-      {/* Footer */}
-      <Footer onNavigate={handleNavigate} />
+      <Footer />
 
-      {/* Floating WhatsApp button / modal */}
-      <FloatingWhatsApp
-        productName={
-          currentView === 'detail' && selectedProduct
-            ? selectedProduct.name
-            : undefined
-        }
-      />
+      <FloatingWhatsApp />
 
-      {/* Cart Drawer */}
       <CartDrawer
         isOpen={cartOpen}
         onClose={() => setCartOpen(false)}
         items={cartItems}
-        onUpdateQuantity={handleUpdateQuantity}
-        onRemoveItem={handleRemoveItem}
-        onClearCart={handleClearCart}
+        onUpdateQuantity={updateQuantity}
+        onRemoveItem={removeItem}
+        onClearCart={clearCart}
       />
     </div>
   );
 }
 
+export default function App() {
+  return (
+    <CartProvider>
+      <AppShell />
+    </CartProvider>
+  );
+}

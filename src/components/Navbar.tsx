@@ -1,84 +1,59 @@
 import React, { useState } from 'react';
-import { ViewType, CategoryType } from '../types';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 
 interface NavbarProps {
-  currentView: ViewType;
-  onNavigate: (view: ViewType, category?: CategoryType | 'Todos') => void;
   cartCount: number;
   onOpenCart: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({
-  currentView,
-  onNavigate,
-  cartCount,
-  onOpenCart,
-}) => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+const navClass = ({ isActive }: { isActive: boolean }) =>
+  `transition-colors ${
+    isActive
+      ? 'text-[#ae2f34] border-b-2 border-[#ae2f34] pb-1'
+      : 'text-[#584140] hover:text-[#ae2f34]'
+  }`;
 
-  const handleNavClick = (view: ViewType, category?: CategoryType | 'Todos') => {
-    onNavigate(view, category);
-    setMobileMenuOpen(false);
-  };
+const mobileNavClass = ({ isActive }: { isActive: boolean }) =>
+  `flex items-center gap-3 p-3 rounded-lg text-left transition-colors ${
+    isActive
+      ? 'bg-[#ff6b6b]/20 text-[#ae2f34]'
+      : 'text-[#584140] hover:bg-[#ffe9e7]'
+  }`;
+
+export const Navbar: React.FC<NavbarProps> = ({ cartCount, onOpenCart }) => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const location = useLocation();
+  const isCatalog = location.pathname.startsWith('/catalogo');
+
+  const closeMobile = () => setMobileMenuOpen(false);
 
   return (
     <>
       <nav className="sticky top-0 w-full z-50 bg-[#fff8f7] shadow-sm transition-all duration-300 ease-in-out border-b border-[#e0bfbd]/30">
         <div className="flex justify-between items-center px-5 py-4 max-w-[1280px] mx-auto">
-          {/* Brand Logo */}
-          <button
-            onClick={() => handleNavClick('home')}
+          <Link
+            to="/"
+            onClick={closeMobile}
             className="font-headline text-[24px] font-bold text-[#ae2f34] tracking-tight flex items-center gap-1.5 focus:outline-none hover:opacity-90 transition-opacity"
           >
             <span>Tropical Vibes</span>
             <span className="text-[22px]" role="img" aria-label="palmera">
               🌴
             </span>
-          </button>
+          </Link>
 
-          {/* Desktop Navigation */}
           <div className="hidden md:flex space-x-8 items-center font-bold text-[16px]">
-            <button
-              onClick={() => handleNavClick('home')}
-              className={`transition-colors ${
-                currentView === 'home'
-                  ? 'text-[#ae2f34] border-b-2 border-[#ae2f34] pb-1'
-                  : 'text-[#584140] hover:text-[#ae2f34]'
-              }`}
-            >
+            <NavLink to="/" end className={navClass}>
               Inicio
-            </button>
-            <button
-              onClick={() => handleNavClick('catalog', 'Todos')}
-              className={`transition-colors ${
-                currentView === 'catalog'
-                  ? 'text-[#ae2f34] border-b-2 border-[#ae2f34] pb-1'
-                  : 'text-[#584140] hover:text-[#ae2f34]'
-              }`}
+            </NavLink>
+            <NavLink
+              to="/catalogo"
+              className={() => navClass({ isActive: isCatalog })}
             >
               Catálogo
-            </button>
-            <button
-              onClick={() => handleNavClick('catalog', 'Hombres')}
-              className="text-[#584140] hover:text-[#ae2f34] transition-colors"
-            >
-              Hombres
-            </button>
-            <button
-              onClick={() => handleNavClick('catalog', 'Mujeres')}
-              className="text-[#584140] hover:text-[#ae2f34] transition-colors"
-            >
-              Mujeres
-            </button>
-            <button
-              onClick={() => handleNavClick('catalog', 'Accesorios')}
-              className="text-[#584140] hover:text-[#ae2f34] transition-colors"
-            >
-              Accesorios
-            </button>
+            </NavLink>
           </div>
 
-          {/* Action Icons */}
           <div className="flex items-center space-x-3">
             <button
               onClick={onOpenCart}
@@ -107,7 +82,6 @@ export const Navbar: React.FC<NavbarProps> = ({
               )}
             </button>
 
-            {/* Mobile Hamburger Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="md:hidden text-[#251818] p-2 rounded-lg hover:bg-[#ffe9e7]"
@@ -146,7 +120,6 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
       </nav>
 
-      {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
         <div className="fixed inset-y-0 left-0 z-60 w-64 bg-[#fff8f7] shadow-2xl flex flex-col md:hidden animate-in slide-in-from-left duration-300">
           <div className="p-5 border-b border-[#e0bfbd]/40 flex justify-between items-center">
@@ -157,8 +130,9 @@ export const Navbar: React.FC<NavbarProps> = ({
               <div className="text-[12px] text-[#584140]">Moda Caribeña</div>
             </div>
             <button
-              onClick={() => setMobileMenuOpen(false)}
+              onClick={closeMobile}
               className="p-1 rounded-full text-[#584140] hover:bg-[#ffe9e7]"
+              aria-label="Cerrar menú"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -176,61 +150,33 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           <nav className="flex-1 p-4 flex flex-col gap-2 font-bold text-[15px]">
-            <button
-              onClick={() => handleNavClick('home')}
-              className={`flex items-center gap-3 p-3 rounded-lg text-left transition-colors ${
-                currentView === 'home'
-                  ? 'bg-[#ff6b6b]/20 text-[#ae2f34]'
-                  : 'text-[#584140] hover:bg-[#ffe9e7]'
-              }`}
+            <NavLink to="/" end className={mobileNavClass} onClick={closeMobile}>
+              Inicio
+            </NavLink>
+            <NavLink
+              to="/catalogo"
+              className={() => mobileNavClass({ isActive: isCatalog })}
+              onClick={closeMobile}
             >
-              <span>🏠</span> Inicio
-            </button>
-            <button
-              onClick={() => handleNavClick('catalog', 'Todos')}
-              className={`flex items-center gap-3 p-3 rounded-lg text-left transition-colors ${
-                currentView === 'catalog'
-                  ? 'bg-[#ff6b6b]/20 text-[#ae2f34]'
-                  : 'text-[#584140] hover:bg-[#ffe9e7]'
-              }`}
-            >
-              <span>🛍️</span> Todos los Productos
-            </button>
-            <button
-              onClick={() => handleNavClick('catalog', 'Hombres')}
-              className="flex items-center gap-3 text-[#584140] p-3 hover:bg-[#ffe9e7] rounded-lg text-left transition-colors"
-            >
-              <span>👕</span> Hombres
-            </button>
-            <button
-              onClick={() => handleNavClick('catalog', 'Mujeres')}
-              className="flex items-center gap-3 text-[#584140] p-3 hover:bg-[#ffe9e7] rounded-lg text-left transition-colors"
-            >
-              <span>👗</span> Mujeres
-            </button>
-            <button
-              onClick={() => handleNavClick('catalog', 'Accesorios')}
-              className="flex items-center gap-3 text-[#584140] p-3 hover:bg-[#ffe9e7] rounded-lg text-left transition-colors"
-            >
-              <span>👜</span> Accesorios
-            </button>
+              Catálogo
+            </NavLink>
           </nav>
 
           <div className="p-5 border-t border-[#e0bfbd]/40">
-            <button
-              onClick={() => handleNavClick('catalog', 'Todos')}
-              className="w-full bg-[#ae2f34] text-white font-bold py-3 rounded-full shadow-md hover:bg-[#8c1520] transition-colors"
+            <Link
+              to="/catalogo"
+              onClick={closeMobile}
+              className="block w-full text-center bg-[#ae2f34] text-white font-bold py-3 rounded-full shadow-md hover:bg-[#8c1520] transition-colors"
             >
               Ver Colección
-            </button>
+            </Link>
           </div>
         </div>
       )}
 
-      {/* Backdrop for mobile drawer */}
       {mobileMenuOpen && (
         <div
-          onClick={() => setMobileMenuOpen(false)}
+          onClick={closeMobile}
           className="fixed inset-0 z-55 bg-black/30 backdrop-blur-xs md:hidden"
         />
       )}

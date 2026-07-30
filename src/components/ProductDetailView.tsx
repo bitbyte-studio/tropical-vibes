@@ -1,27 +1,20 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Product } from '../types';
 import { ProductCard } from './ProductCard';
+import { useCart } from '../context/CartContext';
+import { catalogPath, whatsappUrl } from '../lib/routes';
 
 interface ProductDetailViewProps {
   product: Product;
   allProducts: Product[];
-  onBack: () => void;
-  onAddToCart: (
-    product: Product,
-    selectedColor: string,
-    selectedSize: string,
-    quantity: number
-  ) => void;
-  onSelectProduct: (product: Product) => void;
 }
 
 export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
   product,
   allProducts,
-  onBack,
-  onAddToCart,
-  onSelectProduct,
 }) => {
+  const { addToCart } = useCart();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedColor, setSelectedColor] = useState(
     product.colors[0]?.name || 'Estándar'
@@ -31,6 +24,14 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
   );
   const [quantity, setQuantity] = useState(1);
   const [addedSuccess, setAddedSuccess] = useState(false);
+
+  useEffect(() => {
+    setSelectedImageIndex(0);
+    setSelectedColor(product.colors[0]?.name || 'Estándar');
+    setSelectedSize(product.sizes[0] || 'Única');
+    setQuantity(1);
+    setAddedSuccess(false);
+  }, [product.id, product.colors, product.sizes]);
 
   const activeImage =
     product.images[selectedImageIndex] || product.images[0];
@@ -44,11 +45,9 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
     .slice(0, 4);
 
   const handleAdd = () => {
-    onAddToCart(product, selectedColor, selectedSize, quantity);
+    addToCart(product, selectedColor, selectedSize, quantity);
     setAddedSuccess(true);
-    setTimeout(() => {
-      setAddedSuccess(false);
-    }, 2500);
+    setTimeout(() => setAddedSuccess(false), 2500);
   };
 
   const handleDirectWhatsApp = () => {
@@ -62,20 +61,14 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
       ``,
       `¿Tienen disponibilidad en este color y talla?`,
     ].join('\n');
-    const encoded = encodeURIComponent(text);
-    window.open(
-      `https://api.whatsapp.com/send?phone=13055550199&text=${encoded}`,
-      '_blank',
-      'noopener,noreferrer'
-    );
+    window.open(whatsappUrl(text), '_blank', 'noopener,noreferrer');
   };
 
   return (
     <div className="w-full py-10 px-5 max-w-[1280px] mx-auto">
-      {/* Back button */}
-      <button
-        onClick={onBack}
-        className="inline-flex items-center gap-2 font-bold text-[14px] text-[#584140] hover:text-[#ae2f34] transition-colors mb-8 cursor-pointer"
+      <Link
+        to={catalogPath(product.category)}
+        className="inline-flex items-center gap-2 font-bold text-[14px] text-[#584140] hover:text-[#ae2f34] transition-colors mb-8"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -88,19 +81,17 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
         >
           <path d="m15 18-6-6 6-6" />
         </svg>
-        <span>Volver al Catálogo</span>
-      </button>
+        <span>Volver a {product.category}</span>
+      </Link>
 
-      {/* Main product display grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-16">
-        {/* Images Gallery */}
         <div className="lg:col-span-7 flex flex-col sm:flex-row gap-4">
-          {/* Thumbnails */}
           {product.images.length > 1 && (
             <div className="flex sm:flex-col gap-3 overflow-x-auto sm:overflow-visible order-2 sm:order-1 shrink-0">
               {product.images.map((imgUrl, idx) => (
                 <button
                   key={idx}
+                  type="button"
                   onClick={() => setSelectedImageIndex(idx)}
                   className={`w-20 h-24 rounded-xl overflow-hidden border-2 transition-all shrink-0 cursor-pointer ${
                     selectedImageIndex === idx
@@ -118,7 +109,6 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
             </div>
           )}
 
-          {/* Main big image */}
           <div className="flex-1 rounded-3xl overflow-hidden bg-[#f5dddb]/40 relative shadow-md h-[500px] sm:h-[620px] order-1 sm:order-2">
             {product.tag && (
               <span
@@ -137,12 +127,14 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
           </div>
         </div>
 
-        {/* Product Details & Selection form */}
         <div className="lg:col-span-5 flex flex-col">
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-[13px] font-bold text-[#ae2f34] uppercase tracking-widest">
+            <Link
+              to={catalogPath(product.category)}
+              className="text-[13px] font-bold text-[#ae2f34] uppercase tracking-widest hover:underline"
+            >
               {product.category}
-            </span>
+            </Link>
             {product.rating && (
               <span className="flex items-center gap-1 bg-[#ffdf9b] text-[#251a00] text-[12px] font-bold px-2.5 py-0.5 rounded-full">
                 ★ {product.rating}
@@ -163,8 +155,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
             {product.description}
           </p>
 
-          {/* Colors Selection */}
-          {product.colors && product.colors.length > 0 && (
+          {product.colors.length > 0 && (
             <div className="mb-6">
               <label className="block text-[13px] font-bold text-[#251818] uppercase tracking-wider mb-3">
                 Color Seleccionado:{' '}
@@ -174,6 +165,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
                 {product.colors.map((color) => (
                   <button
                     key={color.name}
+                    type="button"
                     onClick={() => setSelectedColor(color.name)}
                     className={`flex items-center gap-2.5 px-3.5 py-2 rounded-full border transition-all cursor-pointer ${
                       selectedColor === color.name
@@ -194,22 +186,18 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
             </div>
           )}
 
-          {/* Sizes Selection */}
-          {product.sizes && product.sizes.length > 0 && (
+          {product.sizes.length > 0 && (
             <div className="mb-8">
               <div className="flex justify-between items-center mb-3">
                 <label className="text-[13px] font-bold text-[#251818] uppercase tracking-wider">
-                  Talla:{' '}
-                  <span className="text-[#ae2f34]">{selectedSize}</span>
+                  Talla: <span className="text-[#ae2f34]">{selectedSize}</span>
                 </label>
-                <span className="text-[12px] font-bold text-[#006a62]">
-                  📏 Guía de Tallas Caribeña
-                </span>
               </div>
               <div className="flex flex-wrap gap-3">
                 {product.sizes.map((size) => (
                   <button
                     key={size}
+                    type="button"
                     onClick={() => setSelectedSize(size)}
                     className={`min-w-[52px] px-4 py-2.5 rounded-xl font-bold text-[15px] transition-all cursor-pointer ${
                       selectedSize === size
@@ -224,10 +212,10 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
             </div>
           )}
 
-          {/* Quantity and Actions */}
           <div className="flex items-center gap-4 mb-6">
             <div className="flex items-center border border-[#e0bfbd] rounded-xl bg-white h-14 px-1">
               <button
+                type="button"
                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
                 className="w-10 h-full flex items-center justify-center font-bold text-[18px] text-[#584140] hover:text-[#ae2f34]"
               >
@@ -237,6 +225,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
                 {quantity}
               </span>
               <button
+                type="button"
                 onClick={() => setQuantity(quantity + 1)}
                 className="w-10 h-full flex items-center justify-center font-bold text-[18px] text-[#584140] hover:text-[#ae2f34]"
               >
@@ -245,6 +234,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
             </div>
 
             <button
+              type="button"
               onClick={handleAdd}
               className={`flex-1 h-14 rounded-xl font-bold text-[16px] transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer ${
                 addedSuccess
@@ -253,9 +243,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
               }`}
             >
               {addedSuccess ? (
-                <>
-                  <span>✓ ¡Añadido al Carrito!</span>
-                </>
+                <span>✓ ¡Añadido al Carrito!</span>
               ) : (
                 <>
                   <svg
@@ -277,8 +265,8 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
             </button>
           </div>
 
-          {/* Direct WhatsApp CTA */}
           <button
+            type="button"
             onClick={handleDirectWhatsApp}
             className="w-full py-4 bg-[#25D366] hover:bg-[#128C7E] text-white font-bold text-[16px] rounded-xl shadow flex items-center justify-center gap-2.5 transition-all cursor-pointer mb-8"
           >
@@ -292,10 +280,9 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
             <span>Consultar este producto en WhatsApp</span>
           </button>
 
-          {/* Product Bullet Details */}
           <div className="bg-white p-6 rounded-2xl border border-[#e0bfbd]/40">
-            <h4 className="font-bold text-[15px] text-[#251818] mb-3 flex items-center gap-2">
-              <span>🌴</span> Detalles del Producto y Cuidado
+            <h4 className="font-bold text-[15px] text-[#251818] mb-3">
+              Detalles del Producto y Cuidado
             </h4>
             <ul className="space-y-2 text-[14px] text-[#584140]">
               {product.details.map((detail, idx) => (
@@ -311,14 +298,14 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
                 <span className="text-[#ae2f34]">✓</span> Envío desde Miami, FL
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-[#ae2f34]">✓</span> Devolución fácil en 15 días
+                <span className="text-[#ae2f34]">✓</span> Devolución fácil en 15
+                días
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Related products */}
       {relatedProducts.length > 0 && (
         <div className="mt-20 pt-10 border-t border-[#e0bfbd]/40">
           <h3 className="font-headline text-[28px] font-bold text-[#251818] mb-8 text-center">
@@ -326,14 +313,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {relatedProducts.map((relProduct) => (
-              <ProductCard
-                key={relProduct.id}
-                product={relProduct}
-                onSelect={onSelectProduct}
-                onAddToCart={(p) =>
-                  onAddToCart(p, p.colors[0]?.name || 'Estándar', p.sizes[0] || 'Única', 1)
-                }
-              />
+              <ProductCard key={relProduct.id} product={relProduct} />
             ))}
           </div>
         </div>

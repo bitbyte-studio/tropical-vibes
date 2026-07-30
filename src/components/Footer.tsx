@@ -1,25 +1,24 @@
 import React from 'react';
-import { ViewType, CategoryType } from '../types';
+import { Link } from 'react-router-dom';
+import { catalogPath } from '../lib/routes';
 
-interface FooterProps {
-  onNavigate: (view: ViewType, category?: CategoryType | 'Todos') => void;
-}
-
-export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
+export const Footer: React.FC = () => {
   return (
     <footer className="w-full bg-[#3b2d2c] text-[#ffffff] py-16 mt-auto">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-12 px-5 max-w-[1280px] mx-auto">
-        {/* Brand statement */}
         <div className="col-span-1 md:col-span-2">
           <h2 className="font-headline text-[24px] font-bold text-white mb-6">
             Tropical Vibes 🌴
           </h2>
           <p className="font-body text-[16px] text-[#f5dddb] opacity-90 max-w-sm mb-8 leading-relaxed">
-            Diseñando el alma del Caribe con sofisticación de alta moda y espíritu juguetón. Moda Caribeña para almas aventureras.
+            Diseñando el alma del Caribe con sofisticación de alta moda y
+            espíritu juguetón. Moda Caribeña para almas aventureras.
           </p>
           <div className="flex space-x-3">
             <a
-              href="#instagram"
+              href="https://instagram.com"
+              target="_blank"
+              rel="noopener noreferrer"
               aria-label="Instagram"
               className="w-10 h-10 rounded-full bg-[#584140] flex items-center justify-center text-white hover:bg-[#ffdad8] hover:text-[#410006] transition-colors"
             >
@@ -40,7 +39,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               </svg>
             </a>
             <a
-              href="#email"
+              href="mailto:hola@tropicalvibes.com"
               aria-label="Correo"
               className="w-10 h-10 rounded-full bg-[#584140] flex items-center justify-center text-white hover:bg-[#ffdad8] hover:text-[#410006] transition-colors"
             >
@@ -59,72 +58,57 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
               </svg>
             </a>
-            <a
-              href="#share"
-              aria-label="Compartir"
-              className="w-10 h-10 rounded-full bg-[#584140] flex items-center justify-center text-white hover:bg-[#ffdad8] hover:text-[#410006] transition-colors"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
-                <polyline points="16 6 12 2 8 6" />
-                <line x1="12" x2="12" y1="2" y2="15" />
-              </svg>
-            </a>
           </div>
         </div>
 
-        {/* Quick Links */}
         <div>
           <h4 className="font-bold text-[14px] text-white mb-4 uppercase tracking-wider">
             Enlaces Rápidos
           </h4>
           <ul className="space-y-3 font-body text-[16px]">
             <li>
-              <button
-                onClick={() => onNavigate('home')}
+              <Link
+                to="/"
                 className="text-[#f5dddb] hover:text-[#ffdf9b] transition-colors opacity-90 hover:opacity-100"
               >
-                Sobre Nosotros
-              </button>
+                Inicio
+              </Link>
             </li>
             <li>
-              <button
-                onClick={() => onNavigate('catalog', 'Todos')}
+              <Link
+                to="/catalogo"
                 className="text-[#f5dddb] hover:text-[#ffdf9b] transition-colors opacity-90 hover:opacity-100"
               >
                 Colecciones
-              </button>
+              </Link>
             </li>
             <li>
-              <button
-                onClick={() => onNavigate('catalog', 'Todos')}
+              <Link
+                to={catalogPath('Hombres')}
                 className="text-[#f5dddb] hover:text-[#ffdf9b] transition-colors opacity-90 hover:opacity-100"
               >
-                Preguntas Frecuentes
-              </button>
+                Hombres
+              </Link>
             </li>
             <li>
-              <button
-                onClick={() => onNavigate('home')}
+              <Link
+                to={catalogPath('Mujeres')}
                 className="text-[#f5dddb] hover:text-[#ffdf9b] transition-colors opacity-90 hover:opacity-100"
               >
-                Términos y Condiciones
-              </button>
+                Mujeres
+              </Link>
+            </li>
+            <li>
+              <Link
+                to={catalogPath('Accesorios')}
+                className="text-[#f5dddb] hover:text-[#ffdf9b] transition-colors opacity-90 hover:opacity-100"
+              >
+                Accesorios
+              </Link>
             </li>
           </ul>
         </div>
 
-        {/* Contact */}
         <div>
           <h4 className="font-bold text-[14px] text-white mb-4 uppercase tracking-wider">
             Contacto
@@ -146,7 +130,10 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             </svg>
             <span>Calle Ocho, Miami, FL</span>
           </p>
-          <p className="font-body text-[16px] text-[#f5dddb] opacity-90 flex items-center gap-2">
+          <a
+            href="mailto:hola@tropicalvibes.com"
+            className="font-body text-[16px] text-[#f5dddb] opacity-90 flex items-center gap-2 hover:text-[#ffdf9b] transition-colors"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="18"
@@ -162,13 +149,13 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
             </svg>
             <span>hola@tropicalvibes.com</span>
-          </p>
+          </a>
         </div>
       </div>
 
-      <div className="w-full h-px bg-[#584140] mt-12 mb-6 opacity-30 max-w-[1280px] mx-auto"></div>
+      <div className="w-full h-px bg-[#584140] mt-12 mb-6 opacity-30 max-w-[1280px] mx-auto" />
       <div className="text-center px-5 font-body text-[14px] text-[#f5dddb] opacity-70">
-        © 2026 Tropical Vibes. Todos los derechos reservados.
+        © 2026 Tropical Vibes · Demo Bit & Byte Studio
       </div>
     </footer>
   );

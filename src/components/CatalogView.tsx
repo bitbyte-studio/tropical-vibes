@@ -1,24 +1,23 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Product, CategoryType } from '../types';
 import { ProductCard } from './ProductCard';
+import { catalogPath } from '../lib/routes';
 
 interface CatalogViewProps {
   products: Product[];
   selectedCategory: CategoryType | 'Todos';
-  onSelectCategory: (category: CategoryType | 'Todos') => void;
-  onSelectProduct: (product: Product) => void;
-  onAddToCart: (product: Product, e: React.MouseEvent) => void;
 }
 
 export const CatalogView: React.FC<CatalogViewProps> = ({
   products,
   selectedCategory,
-  onSelectCategory,
-  onSelectProduct,
-  onAddToCart,
 }) => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState<'featured' | 'price-asc' | 'price-desc' | 'name'>('featured');
+  const [sortBy, setSortBy] = useState<
+    'featured' | 'price-asc' | 'price-desc' | 'name'
+  >('featured');
 
   const filteredProducts = useMemo(() => {
     return products
@@ -48,38 +47,34 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
 
   return (
     <div className="w-full py-10 px-5 max-w-[1280px] mx-auto">
-      {/* Header */}
       <div className="text-center max-w-2xl mx-auto mb-10">
         <h1 className="font-headline text-[36px] md:text-[44px] font-extrabold text-[#251818] tracking-tight mb-3">
           Colección Caribeña 2026
         </h1>
         <p className="font-body text-[16px] text-[#584140]">
-          Tejidos de fibra natural, guayaberas bordadas a mano y accesorios para la vida en el sol.
+          Tejidos de fibra natural, guayaberas bordadas a mano y accesorios para
+          la vida en el sol.
         </p>
       </div>
 
-      {/* Filter and Search controls */}
       <div className="bg-white p-5 rounded-2xl shadow-xs border border-[#e0bfbd]/40 mb-10 flex flex-col md:flex-row gap-4 items-center justify-between">
-        {/* Categories Tabs */}
         <div className="flex flex-wrap gap-2 w-full md:w-auto">
           {categories.map((cat) => (
-            <button
+            <Link
               key={cat}
-              onClick={() => onSelectCategory(cat)}
-              className={`px-5 py-2.5 rounded-full font-bold text-[14px] transition-all cursor-pointer ${
+              to={catalogPath(cat)}
+              className={`px-5 py-2.5 rounded-full font-bold text-[14px] transition-all ${
                 selectedCategory === cat
                   ? 'bg-[#ae2f34] text-white shadow-md'
                   : 'bg-[#fff0ef] text-[#584140] hover:bg-[#f5dddb]'
               }`}
             >
               {cat}
-            </button>
+            </Link>
           ))}
         </div>
 
-        {/* Search and Sort */}
         <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-          {/* Search input */}
           <div className="relative flex-1 sm:w-64">
             <input
               type="text"
@@ -101,6 +96,7 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
             </svg>
             {searchQuery && (
               <button
+                type="button"
                 onClick={() => setSearchQuery('')}
                 className="absolute right-3 top-3 text-[#584140] hover:text-[#ae2f34] text-[12px] font-bold"
               >
@@ -109,25 +105,27 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
             )}
           </div>
 
-          {/* Sort Select */}
           <select
             value={sortBy}
             onChange={(e) =>
               setSortBy(
-                e.target.value as 'featured' | 'price-asc' | 'price-desc' | 'name'
+                e.target.value as
+                  | 'featured'
+                  | 'price-asc'
+                  | 'price-desc'
+                  | 'name'
               )
             }
             className="px-4 py-2.5 bg-[#fff8f7] border border-[#8c706f]/30 rounded-xl text-[14px] font-bold text-[#251818] outline-none focus:border-[#006a62]"
           >
-            <option value="featured">✨ Destacados</option>
-            <option value="price-asc">💵 Precio: Menor a Mayor</option>
-            <option value="price-desc">💎 Precio: Mayor a Menor</option>
-            <option value="name">🔤 Nombre (A - Z)</option>
+            <option value="featured">Destacados</option>
+            <option value="price-asc">Precio: Menor a Mayor</option>
+            <option value="price-desc">Precio: Mayor a Menor</option>
+            <option value="name">Nombre (A - Z)</option>
           </select>
         </div>
       </div>
 
-      {/* Results Count banner */}
       <div className="flex justify-between items-center mb-6 text-[14px] font-bold text-[#584140]">
         <span>
           Mostrando{' '}
@@ -136,12 +134,12 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
         </span>
         {selectedCategory !== 'Todos' && (
           <span>
-            Categoría: <strong className="text-[#ae2f34]">{selectedCategory}</strong>
+            Categoría:{' '}
+            <strong className="text-[#ae2f34]">{selectedCategory}</strong>
           </span>
         )}
       </div>
 
-      {/* Product Grid */}
       {filteredProducts.length === 0 ? (
         <div className="bg-white rounded-3xl p-16 text-center border border-[#e0bfbd]/40 max-w-xl mx-auto my-12">
           <div className="text-[48px] mb-4">🌴</div>
@@ -149,12 +147,14 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
             No se encontraron prendas
           </h3>
           <p className="text-[#584140] text-[15px] mb-6">
-            No tenemos coincidencias con tu búsqueda actual. Intenta cambiar los filtros o buscar otra prenda.
+            No tenemos coincidencias con tu búsqueda actual. Intenta cambiar los
+            filtros o buscar otra prenda.
           </p>
           <button
+            type="button"
             onClick={() => {
-              onSelectCategory('Todos');
               setSearchQuery('');
+              navigate('/catalogo');
             }}
             className="px-6 py-2.5 bg-[#ae2f34] text-white font-bold text-[14px] rounded-full shadow hover:bg-[#8c1520] transition-colors"
           >
@@ -164,12 +164,7 @@ export const CatalogView: React.FC<CatalogViewProps> = ({
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {filteredProducts.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onSelect={onSelectProduct}
-              onAddToCart={onAddToCart}
-            />
+            <ProductCard key={product.id} product={product} />
           ))}
         </div>
       )}
