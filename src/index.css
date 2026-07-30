@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-display: 'Montserrat', system-ui, sans-serif;
+  --font-headline: 'Montserrat', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+
+  --color-primary: #ae2f34;
+  --color-primary-container: #ff6b6b;
+  --color-on-primary: #ffffff;
+  --color-on-primary-container: #6d0010;
+  --color-primary-fixed: #ffdad8;
+  --color-primary-fixed-dim: #ffb3b0;
+
+  --color-secondary: #006a62;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #70f8e8;
+  --color-on-secondary-container: #007168;
+
+  --color-tertiary: #785a00;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #be9631;
+  --color-on-tertiary-container: #433000;
+  --color-tertiary-fixed: #ffdf9b;
+  --color-on-tertiary-fixed: #251a00;
+
+  --color-surface: #fff8f7;
+  --color-surface-dim: #ecd5d3;
+  --color-surface-bright: #fff8f7;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #fff0ef;
+  --color-surface-container: #ffe9e7;
+  --color-surface-container-high: #fbe3e1;
+  --color-surface-container-highest: #f5dddb;
+  --color-surface-variant: #f5dddb;
+  --color-surface-tint: #ae2f34;
+
+  --color-on-surface: #251818;
+  --color-on-surface-variant: #584140;
+  --color-inverse-surface: #3b2d2c;
+  --color-inverse-on-surface: #ffedeb;
+
+  --color-outline: #8c706f;
+  --color-outline-variant: #e0bfbd;
+  --color-background: #fff8f7;
+  --color-on-background: #251818;
+}
+
+@layer utilities {
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
